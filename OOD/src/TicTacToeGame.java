@@ -9,20 +9,36 @@ APIs:
 */
 public class TicTacToeGame {
     private Board board;
-    private Player player1;
-    private Player player2;
-
-    public TicTacToeGame(String name1, String name2) {
-        board = new Board();
-        player1 = new Player(name1, 1);
-        player2 = new Player(name2, -1);
-    }
+    private final Player player1;
+    private final Player player2;
+    private String winner;
 
     public TicTacToeGame(String name1, String name2, int board_size) {
         board = new Board(board_size);
         player1 = new Player(name1, 1);
         player2 = new Player(name2, -1);
+    }
 
+    // if successfully
+    public int makeMove(int i, int j, Player p) {
+        if (board.validMove(i, j)) {
+            board.makeMove(i, j, p.side);
+            if (board.isWin(i, j, p.side)) {
+                this.winner = p.name;
+            }
+        }
+        return -1;
+    }
+
+    public boolean isGameOver() {
+        return this.winner != null || board.isFull();
+    }
+
+    public String whoIsWinner() {
+        if (this.winner != null) {
+            return this.winner;
+        }
+        return "No Winner!";
     }
 }
 
@@ -31,14 +47,13 @@ class Board {
     final int size;
     int[][] board;
 
-    public Board() {
-        this.size = DEFAULT_BOARD_SIZE;
-        this.board = new int[DEFAULT_BOARD_SIZE][DEFAULT_BOARD_SIZE];
-    }
-
     public Board(int size) {
-        this.size = size;
-        this.board = new int[size][size];
+        if (size < 3) {
+            this.size = DEFAULT_BOARD_SIZE;
+        } else {
+            this.size = size;
+        }
+        this.board = new int[this.size][this.size];
     }
 
     public boolean isFull() {
@@ -48,6 +63,24 @@ class Board {
             }
         }
         return true;
+    }
+
+    public boolean validMove(int i, int j) {
+        return board[i][j] == 0;
+    }
+
+    public void makeMove(int i, int j, int side) {
+        board[i][j] = side;
+    }
+
+    public boolean isWin(int i, int j, int side) {
+        boolean row = true, column = true, diagonal = true;
+        for (int k = 0; k < this.size; k++) {
+            row = board[i][k] == side && row;
+            column = board[k][j] == side && column;
+            diagonal = board[k][k] == side && diagonal;
+        }
+        return row || column || diagonal;
     }
 }
 
@@ -59,4 +92,5 @@ class Player {
         this.name = name;
         this.side = side;
     }
+
 }
